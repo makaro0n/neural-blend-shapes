@@ -5,14 +5,14 @@ from tqdm import tqdm
 
 
 if __name__ == '__main__':
-    prefix = './dataset/Meshes/SMPL/topology'
+    prefix = '.\\dataset\\Meshes\\SMPL\\topology'
     n_topo = 100
     collapse_cnt = 2000
     flip_cnt = 2000
     random.seed(0)
     for i in tqdm(range(n_topo)):
         mesh = SimpleMesh()
-        mesh.load('./dataset/Meshes/SMPL/obj_quad/T-pose.obj')
+        mesh.load('.\\dataset\\Meshes\\SMPL\\obj_quad\\T-pose.obj')
         l = list(range(mesh.edge_cnt))
         random.shuffle(l)
         cnt = 0

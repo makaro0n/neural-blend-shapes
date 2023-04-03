@@ -16,7 +16,8 @@ class SingleLoss:
             self.loss_step = [0] * base * 10
 
     def add_scalar(self, val, step=None):
-        if step is None: step = len(self.loss_step)
+        if step is None:
+            step = len(self.loss_step)
         if val is None:
             val = 0
         else:
@@ -25,7 +26,8 @@ class SingleLoss:
         self.loss_epoch_tmp.append(val)
 
     def epoch(self, step=None):
-        if step is None: step = len(self.loss_epoch)
+        if step is None:
+            step = len(self.loss_epoch)
         loss_avg = sum(self.loss_epoch_tmp) / len(self.loss_epoch_tmp)
         self.loss_epoch_tmp = []
         self.loss_epoch.append(loss_avg)
@@ -49,7 +51,8 @@ class LossRecorder:
         self.base = base
 
     def add_scalar(self, name, val=None, step=None):
-        if isinstance(val, torch.Tensor): val = val.item()
+        if isinstance(val, torch.Tensor):
+            val = val.item()
         if name not in self.losses:
             self.losses[name] = SingleLoss(name, self.writer, self.base)
         self.losses[name].add_scalar(val, step)

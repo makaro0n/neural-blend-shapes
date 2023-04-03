@@ -6,7 +6,7 @@ import os
 
 
 class SMPL_Layer(Module):
-    def __init__(self, model_root='./dataset/smpl_model', gender='neutral'):
+    def __init__(self, model_root='.\\dataset\\smpl_model', gender='neutral'):
         super(SMPL_Layer, self).__init__()
 
         if gender == 'neutral':
@@ -175,8 +175,8 @@ class SMPL_Layer(Module):
             v_posed = v_shaped
         else:
             R_cube = R_cube_big[:, 1:, :, :]
-            I_cube = (torch.eye(3, dtype=torch.float).unsqueeze(dim=0) + \
-                      torch.zeros((batch_num, R_cube.shape[1], 3, 3), dtype=torch.float)).to(device)
+            I_cube = (torch.eye(3, dtype=torch.float).unsqueeze(dim=0)
+                      + torch.zeros((batch_num, R_cube.shape[1], 3, 3), dtype=torch.float)).to(device)
             lrotmin = (R_cube - I_cube).reshape(batch_num, -1, 1).squeeze(dim=2)
             v_posed = v_shaped + torch.tensordot(lrotmin, self.posedirs, dims=([1], [2]))
 
@@ -198,17 +198,18 @@ class SMPL_Layer(Module):
             )
 
         stacked = torch.stack(results, dim=1)
-        results = stacked - \
-                  self.pack(
-                      torch.matmul(
-                          stacked,
-                          torch.reshape(
-                              torch.cat((J, torch.zeros((batch_num, 24, 1), dtype=torch.float).to(device)),
-                                        dim=2),
-                              (batch_num, 24, 4, 1)
-                          )
-                      )
-                  )
+        results = stacked - self.pack(
+            torch.matmul(
+                stacked,
+                torch.reshape(
+                    torch.cat(
+                        (J, torch.zeros((batch_num, 24, 1), dtype=torch.float).to(device)),
+                        dim=2
+                    ),
+                    (batch_num, 24, 4, 1)
+                )
+            )
+        )
 
         T = torch.tensordot(results, self.weights, dims=([1], [1])).permute(0, 3, 1, 2)
 
@@ -234,8 +235,8 @@ class SMPL_Layer(Module):
         R_cube_big = self.rodrigues(pose.view(-1, 1, 3)).reshape(batch_num, -1, 3, 3)
 
         R_cube = R_cube_big[:, 1:, :, :]
-        I_cube = (torch.eye(3, dtype=torch.float).unsqueeze(dim=0) +
-                  torch.zeros((batch_num, R_cube.shape[1], 3, 3), dtype=torch.float)).to(device)
+        I_cube = (torch.eye(3, dtype=torch.float).unsqueeze(dim=0)
+                  + torch.zeros((batch_num, R_cube.shape[1], 3, 3), dtype=torch.float)).to(device)
         lrotmin = (R_cube - I_cube).reshape(batch_num, -1, 1).squeeze(dim=2)
         return torch.tensordot(lrotmin, self.posedirs, dims=([1], [2]))
 

@@ -7,7 +7,6 @@ from heapq import heappop, heapify
 
 
 class MeshPool(nn.Module):
-    
     def __init__(self, target, multi_thread=True):
         super(MeshPool, self).__init__()
         self.__out_target = target
@@ -43,7 +42,7 @@ class MeshPool(nn.Module):
         queue = self.__build_queue(self.__fe[mesh_index, :, :mesh.edges_count], mesh.edges_count)
         # recycle = []
         # last_queue_len = len(queue)
-        last_count = mesh.edges_count + 1
+        # last_count = mesh.edges_count + 1
         mask = np.ones(mesh.edges_count, dtype=np.bool)
         edge_groups = MeshUnion(mesh.edges_count, self.__fe.device)
         while mesh.edges_count > self.__out_target:
@@ -58,9 +57,9 @@ class MeshPool(nn.Module):
     def __pool_edge(self, mesh, edge_id, mask, edge_groups):
         if self.has_boundaries(mesh, edge_id):
             return False
-        elif self.__clean_side(mesh, edge_id, mask, edge_groups, 0)\
-            and self.__clean_side(mesh, edge_id, mask, edge_groups, 2) \
-            and self.__is_one_ring_valid(mesh, edge_id):
+        elif self.__clean_side(mesh, edge_id, mask, edge_groups, 0) \
+                and self.__clean_side(mesh, edge_id, mask, edge_groups, 2) \
+                and self.__is_one_ring_valid(mesh, edge_id):
             self.__merge_edges[0] = self.__pool_side(mesh, edge_id, mask, edge_groups, 0)
             self.__merge_edges[1] = self.__pool_side(mesh, edge_id, mask, edge_groups, 2)
             mesh.merge_vertices(edge_id)
@@ -90,7 +89,6 @@ class MeshPool(nn.Module):
             if edge == -1 or -1 in mesh.gemm_edges[edge]:
                 return True
         return False
-
 
     @staticmethod
     def __is_one_ring_valid(mesh, edge_id):
@@ -178,7 +176,7 @@ class MeshPool(nn.Module):
             MeshPool.__remove_group(mesh, edge_groups, edge_key)
         mesh.edges_count -= 3
         vertex = list(vertex)
-        assert(len(vertex) == 1)
+        assert (len(vertex) == 1)
         mesh.remove_vertex(vertex[0])
 
     def __build_queue(self, features, edges_count):
@@ -200,4 +198,3 @@ class MeshPool(nn.Module):
     def __remove_group(mesh, edge_groups, index):
         edge_groups.remove_group(index)
         mesh.remove_group(index)
-

@@ -14,5 +14,5 @@ if __name__ == '__main__':
 
     shape = shape.detach().cpu().numpy()
 
-    # np.save('./eval_constant/test_shape.npy', shape)
-    np.save('./eval_constant/test_pose.npy', pose)
+    # np.save('.\\eval_constant\\test_shape.npy', shape)
+    np.save('.\\eval_constant\\test_pose.npy', pose)

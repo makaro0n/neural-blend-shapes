@@ -17,7 +17,8 @@ parent_smpl = [-1, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17,
 
 
 def generate_pose(batch_size, device, uniform=False, factor=1, root_rot=False, n_bone=None, ee=None):
-    if n_bone is None: n_bone = 24
+    if n_bone is None:
+        n_bone = 24
     if ee is not None:
         if root_rot:
             ee.append(0)
@@ -111,7 +112,8 @@ class StaticMeshes(Dataset):
         return len(self.topo_id)
 
     def save_verts_as_obj(self, verts, filename, face=None, idx=None):
-        if idx is None: idx = 0
+        if idx is None:
+            idx = 0
         if face is None:
             face = self.faces[idx]
         write_obj(filename, verts, face)

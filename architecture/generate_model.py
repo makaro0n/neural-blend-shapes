@@ -71,7 +71,7 @@ class EnvelopeGenerate(GenerateModelBase):
         self.models = {'geo': geo, 'att': att, 'gen': gen}
 
         self.args = args
-        self.rec_model = geo # Use this model as log recorder
+        self.rec_model = geo    # Use this model as log recorder
         self.fk = fk
 
     def forward_att(self, t_pose_mapped):

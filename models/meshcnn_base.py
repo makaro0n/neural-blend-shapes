@@ -20,7 +20,7 @@ class MeshCNNWrapper:
                  is_cont=False,
                  save_freq=500):
         if save_path is None:
-            save_path = './results/ae/'
+            save_path = '.\\results\\ae\\'
         """
         Make IDE happy
         """
@@ -64,10 +64,10 @@ class MeshCNNWrapper:
         # Set up saving dirs
         self.save_path = save_path
         if requires_recorder and is_train:
-            loss_path = pjoin(save_path, 'logs/')
+            loss_path = pjoin(save_path, 'logs\\')
             if self.is_train:
                 if not is_cont:
-                    os.system(f'rm -r {loss_path}/*')
+                    os.system(f'rm -r {loss_path}\\*')
                 self.loss_recorder = LossRecorder(SummaryWriter(loss_path), base=is_cont + 1)
         else:
             self.loss_recorder = None
@@ -84,7 +84,7 @@ class MeshCNNWrapper:
 
     def create_mesh_from_data(self, verts=None, size=None):
         meshes = []
-        hold_history = False # We don't need meshcnn's pool
+        hold_history = False    # We don't need meshcnn's pool
         size = verts.shape[0] if verts is not None else size
         for i in range(size):
             mesh = self.topo_loader.meshes[self.topo_id]
@@ -114,11 +114,11 @@ class MeshCNNWrapper:
             epoch = self.epoch_count
 
         if epoch % self.save_freq == 0 or epoch == 1000:
-            torch.save(self.model.state_dict(), pjoin(self.save_path, 'model/%05d.pt' % epoch))
-            torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer/%05d.pt' % epoch))
+            torch.save(self.model.state_dict(), pjoin(self.save_path, 'model\\%05d.pt' % epoch))
+            torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer\\%05d.pt' % epoch))
 
-        torch.save(self.model.state_dict(), pjoin(self.save_path, 'model/latest.pt'))
-        torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer/latest.pt'))
+        torch.save(self.model.state_dict(), pjoin(self.save_path, 'model\\latest.pt'))
+        torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer\\latest.pt'))
 
     def load_model(self, epoch=None):
         if epoch is None:
@@ -130,11 +130,11 @@ class MeshCNNWrapper:
 
         else:
             filename = ('%05d.pt' % epoch) if epoch != -1 else 'latest.pt'
-            state_dict = torch.load(pjoin(self.save_path, f'model/{filename}'), map_location=self.device)
+            state_dict = torch.load(pjoin(self.save_path, f'model\\{filename}'), map_location=self.device)
             self.model.load_state_dict(state_dict)
 
             if self.is_train:
-                state_dict = torch.load(pjoin(self.save_path, f'optimizer/{filename}'), map_location=self.device)
+                state_dict = torch.load(pjoin(self.save_path, f'optimizer\\{filename}'), map_location=self.device)
                 self.optimizer.load_state_dict(state_dict)
                 self.epoch_count = epoch + 1
 

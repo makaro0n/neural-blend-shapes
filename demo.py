@@ -20,10 +20,10 @@ from tqdm import tqdm
 def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--device', type=str, default='cpu')
-    parser.add_argument('--pose_file', type=str, default='./eval_constant/sequences/house-dance.npy')
-    parser.add_argument('--model_path', type=str, default='./pre_trained')
-    parser.add_argument('--obj_path', type=str, default='./eval_constant/meshes/artist-2.obj')
-    parser.add_argument('--result_path', type=str, default='./demo')
+    parser.add_argument('--pose_file', type=str, default='.\\eval_constant\\sequences\\house-dance.npy')
+    parser.add_argument('--model_path', type=str, default='.\\pre_trained')
+    parser.add_argument('--obj_path', type=str, default='.\\eval_constant\\meshes\\artist-2.obj')
+    parser.add_argument('--result_path', type=str, default='.\\demo')
     parser.add_argument('--normalize', type=int, default=0)
     parser.add_argument('--envelope_only', type=int, default=0)
     parser.add_argument('--animated_bvh', type=int, default=0)
@@ -69,8 +69,9 @@ def load_model(device, model_args, topo_loader, save_path_base, envelope_only, e
 
     for sub_model in sub_models:
         o_path = sub_model.save_path
-        if o_path.endswith('/'): o_path = o_path[:-1]
-        o_path = o_path.split('/')[-1]
+        if o_path.endswith('\\'):
+            o_path = o_path[:-1]
+        o_path = o_path.split('\\')[-1]
         sub_model.save_path = pjoin(save_path_base, o_path)
         sub_model.load_model(epoch_num)
 
@@ -117,14 +118,15 @@ def write_back(prefix, skeleton, skinning_weight, verts, faces, original_path, r
         np.save(pjoin(prefix, 'coff.npy'), coff.squeeze())
     bvh_writer.write(pjoin(prefix, 'skeleton.bvh'), skeleton, rot)
 
-    os.system(f"cp {original_path} {pjoin(prefix, 'T-pose.obj')}")
+    os.system(f"copy {original_path} {pjoin(prefix, 'T-pose.obj')}")
 
     if os.path.exists(pjoin(prefix, 'obj')):
-        os.system(f"rm -r {pjoin(prefix, 'obj/*')}")
+        # os.system(f"del -r {pjoin(prefix, 'obj\\*')}")
+        os.system("del -r {}".format(pjoin(prefix, 'obj\\*')))
     if verts is not None:
         print('Writing back...')
         for i in tqdm(range(verts.shape[0])):
-            write_obj(pjoin(prefix, 'obj/%05d.obj' % i), verts[i], faces)
+            write_obj(pjoin(prefix, 'obj\\%05d.obj' % i), verts[i], faces)
 
 
 def main():

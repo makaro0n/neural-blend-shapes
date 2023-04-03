@@ -7,7 +7,7 @@ import os
 class BaseOptionParser:
     def __init__(self):
         self.parser = argparse.ArgumentParser()
-        self.parser.add_argument('--save_path', type=str, default='./results/tmp/')
+        self.parser.add_argument('--save_path', type=str, default='.\\results\\tmp\\')
         self.parser.add_argument('--device', type=str, default='cpu')
         self.parser.add_argument('--num_layers', type=int, default=4)
         self.parser.add_argument('--base', type=int, default=64)
@@ -30,7 +30,7 @@ class BaseOptionParser:
     def save(self, filename, args_str=None):
         if args_str is None:
             args_str = ' '.join(sys.argv[1:])
-        path = '/'.join(filename.split('/')[:-1])
+        path = '\\'.join(filename.split('\\')[:-1])
         os.makedirs(path, exist_ok=True)
         with open(filename, 'w') as file:
             file.write(args_str)

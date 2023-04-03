@@ -14,8 +14,10 @@ class SkeletonConv(nn.Module):
             raise Exception('BAD')
         super(SkeletonConv, self).__init__()
 
-        if padding_mode == 'zeros': padding_mode = 'constant'
-        if padding_mode == 'reflection': padding_mode = 'reflect'
+        if padding_mode == 'zeros':
+            padding_mode = 'constant'
+        if padding_mode == 'reflection':
+            padding_mode = 'reflect'
 
         self.expanded_neighbour_list = []
         self.expanded_neighbour_list_offset = []
@@ -59,9 +61,8 @@ class SkeletonConv(nn.Module):
         self.mask = nn.Parameter(self.mask, requires_grad=False)
 
         self.description = 'SkeletonConv(in_channels_per_armature={}, out_channels_per_armature={}, kernel_size={}, ' \
-                           'joint_num={}, stride={}, padding={}, bias={})'.format(
-            in_channels // joint_num, out_channels // joint_num, kernel_size, joint_num, stride, padding, bias
-        )
+                           'joint_num={}, stride={}, padding={}, bias={})'.format(in_channels // joint_num, out_channels // joint_num, kernel_size,
+                                                                                  joint_num, stride, padding, bias)
 
         self.reset_parameters()
 
@@ -87,7 +88,8 @@ class SkeletonConv(nn.Module):
             self.bias = nn.Parameter(self.bias)
 
     def set_offset(self, offset):
-        if not self.add_offset: raise Exception('Wrong Combination of Parameters')
+        if not self.add_offset:
+            raise Exception('Wrong Combination of Parameters')
         self.offset = offset.reshape(offset.shape[0], -1)
 
     def forward(self, input):
@@ -129,12 +131,13 @@ class SkeletonLinear(nn.Module):
 
     def reset_parameters(self):
         for i, neighbour in enumerate(self.expanded_neighbour_list):
-            tmp = torch.zeros_like(
-                self.weight[i*self.out_channels_per_joint: (i + 1)*self.out_channels_per_joint, neighbour]
-            )
-            self.mask[i*self.out_channels_per_joint: (i + 1)*self.out_channels_per_joint, neighbour] = 1
+            tmp = torch.zeros_like(self.weight[i * self.out_channels_per_joint:
+                                               (i + 1) * self.out_channels_per_joint, neighbour])
+            self.mask[i * self.out_channels_per_joint:
+                      (i + 1) * self.out_channels_per_joint, neighbour] = 1
             nn.init.kaiming_uniform_(tmp, a=math.sqrt(5))
-            self.weight[i*self.out_channels_per_joint: (i + 1)*self.out_channels_per_joint, neighbour] = tmp
+            self.weight[i * self.out_channels_per_joint:
+                        (i + 1) * self.out_channels_per_joint, neighbour] = tmp
 
         fan_in, _ = nn.init._calculate_fan_in_and_fan_out(self.weight)
         bound = 1 / math.sqrt(fan_in)
@@ -147,7 +150,8 @@ class SkeletonLinear(nn.Module):
         input = input.reshape(input.shape[0], -1)
         weight_masked = self.weight * self.mask
         res = F.linear(input, weight_masked, self.bias)
-        if self.extra_dim1: res = res.reshape(res.shape + (1,))
+        if self.extra_dim1:
+            res = res.reshape(res.shape + (1,))
         return res
 
 
@@ -167,7 +171,8 @@ class SkeletonPoolJoint(nn.Module):
         self.child = [-1 for _ in range(len(self.parent))]
         children_cnt = [0 for _ in range(len(self.parent))]
         for x, pa in enumerate(self.parent):
-            if pa < 0: continue
+            if pa < 0:
+                continue
             children_cnt[pa] += 1
             self.child[pa] = x
         self.pooling_map[0] = 0
@@ -197,7 +202,7 @@ class SkeletonPoolJoint(nn.Module):
             len(topology), len(self.pooling_list),
         )
 
-        self.pooling_list.sort(key=lambda x:x[0])
+        self.pooling_list.sort(key=lambda x: x[0])
         for i, a in enumerate(self.pooling_list):
             for j in a:
                 self.pooling_map[j] = i
@@ -205,7 +210,8 @@ class SkeletonPoolJoint(nn.Module):
         self.output_joint_num = len(self.pooling_list)
         self.new_topology = [-1 for _ in range(len(self.pooling_list))]
         for i, x in enumerate(self.pooling_list):
-            if i < 1: continue
+            if i < 1:
+                continue
             self.new_topology[i] = self.pooling_map[self.parent[x[0]]]
 
         self.weight = torch.zeros(len(self.pooling_list) * channels_per_joint, self.joint_num * channels_per_joint)
@@ -219,7 +225,6 @@ class SkeletonPoolJoint(nn.Module):
 
     def forward(self, input: torch.Tensor):
         return torch.matmul(self.weight, input.unsqueeze(-1)).squeeze(-1)
-
 
 
 class SkeletonPool(nn.Module):

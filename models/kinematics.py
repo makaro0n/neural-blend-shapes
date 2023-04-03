@@ -14,7 +14,7 @@ class ForwardKinematics:
         @param rots: local joint rotations (batch_size, bone_num, 3, 3)
         @param offsets: (batch_size, bone_num, 3) or None
         @param global_pos: global_position: (batch_size, 3) or keep it as in offsets (default)
-        @return: (batch_szie, bone_num, 3, 4)
+        @return: (batch_size, bone_num, 3, 4)
         """
         rots = rots.clone()
         if offsets is None:

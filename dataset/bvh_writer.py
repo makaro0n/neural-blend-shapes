@@ -31,7 +31,7 @@ def write_bvh(parent, offset, rotation, position, names, frametime, order, path,
         file_string += prefix + '\t' + channel_label + '\n'
 
         has_child = False
-        for y in range(idx+1, rotation.shape[1]):
+        for y in range(idx + 1, rotation.shape[1]):
             if parent[y] == idx:
                 has_child = True
                 write_static(y, prefix + '\t')

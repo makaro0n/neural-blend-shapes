@@ -7,7 +7,7 @@ import os
 
 def get_sparse_identity(n):
     idx = torch.LongTensor([[i, i] for i in range(n)])
-    value = torch.FloatTensor([1.] * n)
+    value = torch.FloatTensor([1.0] * n)
     return torch.sparse.FloatTensor(idx.t(), value, torch.Size([n, n]))
 
 
@@ -18,17 +18,18 @@ class SimpleMesh:
     It only works with 2-manifold meshes
     v_mask: v_mask[i] == 0 means i-th vertex is masked out
     """
+
     def __init__(self, vs=None, faces=None):
-        self.vs = vs    # vertex position
-        self.ve = None    # vertex's neighbor edge id
-        self.vv = None    # vertex's neighbor vertex id
-        self.faces = faces # faces, shape = (n_face, 3)
+        self.vs = vs  # vertex position
+        self.ve = None  # vertex's neighbor edge id
+        self.vv = None  # vertex's neighbor vertex id
+        self.faces = faces  # faces, shape = (n_face, 3)
         self.v_mask = None
         self.f_mask = None
         self.e_mask = None
-        self.edge2key = None # Mapping tuple (u, v) to corresponding id
-        self.edge_cnt = None # number of edges
-        self.ef = None    # edge's neighbor face id
+        self.edge2key = None  # Mapping tuple (u, v) to corresponding id
+        self.edge_cnt = None  # number of edges
+        self.ef = None  # edge's neighbor face id
         self.edges = None
         self.vs_mat = None
         if vs is not None and faces is not None:
@@ -47,8 +48,10 @@ class SimpleMesh:
         if isinstance(face, int):
             face = self.faces[face]
         res = (face[i], face[(i + 1) % 3])
-        if res[0] > res[1]: return (res[1], res[0])
-        else: return res
+        if res[0] > res[1]:
+            return (res[1], res[0])
+        else:
+            return res
 
     def prepare_mesh(self):
         """
@@ -76,9 +79,9 @@ class SimpleMesh:
                 self.ef[self.edge2key[edge]].append(face_id)
 
         self.edges = np.asarray(self.edges, dtype=np.int)
-        self.v_mask = np.ones((self.vs.shape[0], ), dtype=np.bool)
-        self.f_mask = np.ones((self.faces.shape[0], ), dtype=np.bool)
-        self.e_mask = np.ones((self.edges.shape[0], ), dtype=np.bool)
+        self.v_mask = np.ones((self.vs.shape[0],), dtype=np.bool)
+        self.f_mask = np.ones((self.faces.shape[0],), dtype=np.bool)
+        self.e_mask = np.ones((self.edges.shape[0],), dtype=np.bool)
 
     def load(self, file, need_prepare=True):
         """
@@ -91,13 +94,15 @@ class SimpleMesh:
                 split_line = line.split()
                 if not split_line:
                     continue
-                elif split_line[0] == 'v':
+                elif split_line[0] == "v":
                     self.vs.append([float(v) for v in split_line[1:4]])
-                elif split_line[0] == 'f':
-                    face_vertex_ids = [int(c.split('/')[0]) for c in split_line[1:]]
+                elif split_line[0] == "f":
+                    face_vertex_ids = [int(c.split("\\")[0]) for c in split_line[1:]]
                     assert len(face_vertex_ids) == 3
-                    face_vertex_ids = [(ind - 1) if (ind >= 0) else (len(self.vs) + ind)
-                                   for ind in face_vertex_ids]
+                    face_vertex_ids = [
+                        (ind - 1) if (ind >= 0) else (len(self.vs) + ind)
+                        for ind in face_vertex_ids
+                    ]
                     self.faces.append(face_vertex_ids)
         self.vs = np.asarray(self.vs)
         self.faces = np.asarray(self.faces, dtype=np.int)
@@ -109,16 +114,16 @@ class SimpleMesh:
         vs, faces = self.clear()
         faces = faces + 1
 
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             for vi, v in enumerate(vs):
-                f.write('v %f %f %f\n' % (v[0], v[1], v[2]))
+                f.write("v %f %f %f\n" % (v[0], v[1], v[2]))
             for i, face in enumerate(faces):
-                f.write('f %d %d %d\n' % (face[0], face[1], face[2]))
+                f.write("f %d %d %d\n" % (face[0], face[1], face[2]))
 
     def save_topology(self, path_name):
         os.makedirs(path_name, exist_ok=True)
-        self.save(pjoin(path_name, 'T-pose.obj'))
-        np.save(pjoin(path_name, 'v_mask.npy'), self.v_mask)
+        self.save(pjoin(path_name, "T-pose.obj"))
+        np.save(pjoin(path_name, "v_mask.npy"), self.v_mask)
 
     def clear(self):
         vs = self.vs[self.v_mask]
@@ -130,8 +135,8 @@ class SimpleMesh:
 
     def clear_(self):
         self.vs, self.faces = self.clear()
-        self.v_mask = np.ones((self.vs.shape[0], ), dtype=np.bool)
-        self.f_mask = np.ones((self.faces.shape[0], ), dtype=np.bool)
+        self.v_mask = np.ones((self.vs.shape[0],), dtype=np.bool)
+        self.f_mask = np.ones((self.faces.shape[0],), dtype=np.bool)
         self.prepare_mesh()
 
     def face_v_sanity_check(self):
@@ -139,11 +144,12 @@ class SimpleMesh:
         res = self.v_mask[faces]
         if not res.all():
             for i in range(self.faces.shape[0]):
-                if not self.f_mask[i]: continue
+                if not self.f_mask[i]:
+                    continue
                 if not self.v_mask[self.faces[i]].all():
                     print(i)
             self.ef_sanity_check()
-            self.save('./results/crash.obj')
+            self.save(".\\results\\crash.obj")
             assert 0
 
     def face_edge_sanity_check(self):
@@ -156,13 +162,15 @@ class SimpleMesh:
     def ve_sanity_check(self):
         ve = []
         for i, v in enumerate(self.ve):
-            if not self.v_mask[i]: continue
+            if not self.v_mask[i]:
+                continue
             ve += v
         ve = np.array(ve, dtype=np.int)
         res = self.e_mask[ve]
         if not res.all():
             for i in range(self.vs.shape[0]):
-                if not self.v_mask[i]: continue
+                if not self.v_mask[i]:
+                    continue
                 if not self.e_mask[self.ve[i]].all():
                     print(i)
                     assert 0
@@ -185,7 +193,7 @@ class SimpleMesh:
                 edge = (face[i], face[(i + 1) % 3])
                 if edge in edge_set:
                     print(face_id)
-                    self.save('./results/crash.obj')
+                    self.save(".\\results\\crash.obj")
                     assert 0
                 edge_set.add(edge)
 
@@ -217,7 +225,7 @@ class SimpleMesh:
         self.ve[edge[1]].remove(target_eid)
         self.ve[edge[0]].remove(target_eid)
         for face_id in self.ef[target_eid]:
-           for i in range(3):
+            for i in range(3):
                 edge_to_change = self.make_edge(face_id, i)
                 if edge[1] in edge_to_change:
                     id = self.edge2key[edge_to_change]
@@ -242,7 +250,7 @@ class SimpleMesh:
             ef_a = set(self.ef[edge_a])
             ef_b = set(self.ef[edge_b])
             remained_face = list((ef_a | ef_b) - ef_a)
-            assert(len(remained_face) == 1)
+            assert len(remained_face) == 1
             remained_face = remained_face[0]
             self.ef[edge_a].remove(face_id)
             self.ef[edge_a].append(remained_face)
@@ -253,7 +261,9 @@ class SimpleMesh:
             for i in range(2):
                 if self.edges[edge_id, i] == edge[1]:
                     self.edges[edge_id, i] = edge[0]
-                    new_edge = tuple(sorted([self.edges[edge_id, 0], self.edges[edge_id, 1]]))
+                    new_edge = tuple(
+                        sorted([self.edges[edge_id, 0], self.edges[edge_id, 1]])
+                    )
                     self.edge2key[new_edge] = edge_id
 
         # Mask 2 neighbor faces
@@ -261,7 +271,8 @@ class SimpleMesh:
 
         # Change vertex of faces connected to edge[1] and not deleted
         for face_id in to_change_face:
-            if not self.f_mask[face_id]: continue
+            if not self.f_mask[face_id]:
+                continue
             for i in range(3):
                 if self.faces[face_id, i] == edge[1]:
                     self.faces[face_id, i] = edge[0]
@@ -288,13 +299,20 @@ class SimpleMesh:
 
         new_edge = tuple(sorted(list(shared)))
 
-        if new_edge in self.edge2key and \
-                (self.edges[self.edge2key[new_edge]] == np.array(new_edge, dtype=np.int64)).all():
+        if (
+            new_edge in self.edge2key
+            and (
+                self.edges[self.edge2key[new_edge]]
+                == np.array(new_edge, dtype=np.int64)
+            ).all()
+        ):
             return 0
 
         # make sure new_edge[0/1] in self.ef[target_eid, 0/1] respectively
-        if not (new_edge[0] in self.faces[self.ef[target_eid][0]] and
-                new_edge[1] in self.faces[self.ef[target_eid][1]]):
+        if not (
+            new_edge[0] in self.faces[self.ef[target_eid][0]]
+            and new_edge[1] in self.faces[self.ef[target_eid][1]]
+        ):
             self.ef[target_eid] = self.ef[target_eid][::-1]
 
         # modify faces
@@ -327,11 +345,11 @@ class SimpleMesh:
         n = self.vs.shape[0]
         for i in range(self.vs.shape[0]):
             idx.append((i, i))
-            value.append(1.)
+            value.append(1.0)
 
             for j in range(len(self.vv[i])):
                 idx.append((i, self.vv[i][j]))
-                value.append(1. / len(self.vv[i]))
+                value.append(1.0 / len(self.vv[i]))
 
         idx = torch.LongTensor(idx)
         value = torch.FloatTensor(value)

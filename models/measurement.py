@@ -165,8 +165,6 @@ def segment2segment(a0, a1, b0, b1, clampAll=True, clampA0=False, clampA1=False,
                     if np.absolute(d0) < np.absolute(d1):
                         return a0, b0, np.linalg.norm(a0 - b0)
                     return a0, b1, np.linalg.norm(a0 - b1)
-
-
             # Is segment B after A?
             elif d0 >= magA <= d1:
                 if clampA1 and clampB0:

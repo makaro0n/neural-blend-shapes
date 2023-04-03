@@ -12,8 +12,8 @@ class BoundingBox:
         if self.verts is None:
             return
 
-        left_std = torch.tensor([ 0.8356,  0.2134, -0.0529], device=verts.device)
-        right_std = torch.tensor([-0.8349,  0.2105, -0.0566], device=verts.device)
+        left_std = torch.tensor([0.8356, 0.2134, -0.0529], device=verts.device)
+        right_std = torch.tensor([-0.8349, 0.2105, -0.0566], device=verts.device)
 
         left_id = torch.argmax(verts[..., 0], dim=-1)
         right_id = torch.argmin(verts[..., 0], dim=-1)

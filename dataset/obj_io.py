@@ -15,7 +15,7 @@ def load_obj(filename):
             elif split_line[0] == 'v':
                 vs.append([float(v) for v in split_line[1:4]])
             elif split_line[0] == 'f':
-                face_vertex_ids = [int(c.split('/')[0]) for c in split_line[1:]]
+                face_vertex_ids = [int(c.split('\\')[0]) for c in split_line[1:]]
                 assert len(face_vertex_ids) == 3
                 face_vertex_ids = [(ind - 1) if (ind >= 0) else (len(vs) + ind)
                                    for ind in face_vertex_ids]

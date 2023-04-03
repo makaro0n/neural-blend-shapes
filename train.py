@@ -52,13 +52,13 @@ def prepare_dataset(device, args):
 
     # Prepare SMPL dataset and MultiGarmentDataset
     dataset_smpl = SMPLDataset(device=device)
-    dataset_garment = MultiGarmentDataset('./dataset/Meshes/MultiGarment', topo_loader, device)
+    dataset_garment = MultiGarmentDataset('.\\dataset\\Meshes\\MultiGarment', topo_loader, device)
 
     # Prepare topology augmentation
     if args.topo_augment:
-        begin_aug_topo, len_topo = topo_loader.load_smpl_group('./dataset/Meshes/SMPL/topology/', is_train=True)
+        begin_aug_topo, len_topo = topo_loader.load_smpl_group('.\\dataset\\Meshes\\SMPL\\topology\\', is_train=True)
     else:
-        begin_aug_topo = topo_loader.load_from_obj('./dataset/eval_constant/meshes/smpl_std.obj')
+        begin_aug_topo = topo_loader.load_from_obj('.\\dataset\\eval_constant\\meshes\\smpl_std.obj')
         len_topo = 1
 
     return topo_loader, dataset_smpl, dataset_garment, begin_aug_topo, len_topo
@@ -86,11 +86,12 @@ def main():
     elif args.residual:
         model = residual_model
         if args.fast_train:
-            basis = np.load(pjoin(args.save_path, 'smpl_preprocess/basis.npy'))
+            basis = np.load(pjoin(args.save_path, 'smpl_preprocess\\basis.npy'))
             basis = torch.tensor(basis, device=device)
             basis = basis[None]
-            os.makedirs(pjoin(args.save_path, 'coff/model'), exist_ok=True)
-            cmd = f"cp {pjoin(args.save_path, 'smpl_preprocess/full_model.pt')} {pjoin(args.save_path, 'coff/model/latest.pt')}"
+            os.makedirs(pjoin(args.save_path, 'coff\\model'), exist_ok=True)
+            # cmd = f"copy {pjoin(args.save_path, 'smpl_preprocess\\full_model.pt')} {pjoin(args.save_path, 'coff\\model\\latest.pt')}"
+            cmd = "copy {} {}".format(pjoin(args.save_path, 'smpl_preprocess\\full_model.pt'), pjoin(args.save_path, 'coff\\model\\latest.pt'))
             os.system(cmd)
         else:
             basis = None

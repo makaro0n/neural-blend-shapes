@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class MeshConv(nn.Module):
     """ Computes convolution between edges and 4 incident (1-ring) edge neighbors
     in the forward pass takes:
@@ -47,7 +48,7 @@ class MeshConv(nn.Module):
         padding = torch.zeros((x.shape[0], x.shape[1], 1), requires_grad=True, device=x.device)
         # padding = padding.to(x.device)
         x = torch.cat((padding, x), dim=2)
-        Gi = Gi + 1 #shift
+        Gi = Gi + 1  # shift
 
         # first flatten indices
         Gi_flat = self.flatten_gemm_inds(Gi)

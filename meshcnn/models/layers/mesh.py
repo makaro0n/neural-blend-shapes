@@ -48,7 +48,7 @@ class Mesh:
         v_a.__iadd__(v_b)
         v_a.__itruediv__(2)
         self.v_mask[edge[1]] = False
-        mask = self.edges == edge[1] # todo: Improve performance
+        mask = self.edges == edge[1]    # todo: Improve performance
         self.ve[edge[0]].extend(self.ve[edge[1]])
         self.edges[mask] = edge[0]
 
@@ -86,9 +86,9 @@ class Mesh:
         self.pool_count += 1
         self.export()
 
-
     def export(self, file=None, vcolor=None):
-        if self.is_train: return
+        if self.is_train:
+            return
         if file is None:
             file = './results/ae_mesh/%s_%d.obj' % (self.export_folder, self.pool_count)
             # if self.export_folder:
@@ -169,14 +169,14 @@ class Mesh:
 
     def init_history(self):
         self.history_data = {
-                               'groups': [],
-                               'gemm_edges': [self.gemm_edges.copy()],
-                               'occurrences': [],
-                               'old2current': np.arange(self.edges_count, dtype=np.int32),
-                               'current2old': np.arange(self.edges_count, dtype=np.int32),
-                               'edges_mask': [torch.ones(self.edges_count,dtype=torch.bool)],
-                               'edges_count': [self.edges_count],
-                              }
+            'groups': [],
+            'gemm_edges': [self.gemm_edges.copy()],
+            'occurrences': [],
+            'old2current': np.arange(self.edges_count, dtype=np.int32),
+            'current2old': np.arange(self.edges_count, dtype=np.int32),
+            'edges_mask': [torch.ones(self.edges_count, dtype=torch.bool)],
+            'edges_count': [self.edges_count],
+        }
         if self.export_folder:
             self.history_data['collapses'] = MeshUnion(self.edges_count)
 
@@ -197,7 +197,7 @@ class Mesh:
 
     def get_occurrences(self):
         return self.history_data['occurrences'].pop()
-    
+
     def __clean_history(self, groups, pool_mask):
         if self.history_data is not None:
             mask = self.history_data['old2current'] != -1
@@ -209,7 +209,7 @@ class Mesh:
             self.history_data['groups'].append(groups.get_groups(pool_mask))
             self.history_data['gemm_edges'].append(self.gemm_edges.copy())
             self.history_data['edges_count'].append(self.edges_count)
-    
+
     def unroll_gemm(self):
         self.history_data['gemm_edges'].pop()
         self.gemm_edges = self.history_data['gemm_edges'][-1]

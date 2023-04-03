@@ -130,7 +130,7 @@ class MLP(nn.Module):
         self.save_freq = save_freq
 
         if save_path is None:
-            save_path = './results/tmp/fc/'
+            save_path = '.\\results\\tmp\\fc\\'
         self.save_path = save_path
 
         self.layers = nn.ModuleList()
@@ -145,7 +145,7 @@ class MLP(nn.Module):
             param.data /= div
 
         for i in range(1, len(layers)):
-            model = [nn.Linear(layers[i-1], layers[i])]
+            model = [nn.Linear(layers[i - 1], layers[i])]
             if i == len(layers) - 1:
                 div_param(model[0].bias, last_init_div)
                 div_param(model[0].weight, last_init_div)
@@ -179,11 +179,11 @@ class MLP(nn.Module):
             epoch = self.epoch_count
 
         if epoch % self.save_freq == 0:
-            torch.save(self.layers.state_dict(), pjoin(self.save_path, 'model/%05d.pt' % epoch))
-            torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer/%05d.pt' % epoch))
+            torch.save(self.layers.state_dict(), pjoin(self.save_path, 'model\\%05d.pt' % epoch))
+            torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer\\%05d.pt' % epoch))
 
-        torch.save(self.layers.state_dict(), pjoin(self.save_path, 'model/latest.pt'))
-        torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer/latest.pt'))
+        torch.save(self.layers.state_dict(), pjoin(self.save_path, 'model\\latest.pt'))
+        torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer\\latest.pt'))
 
     def load_model(self, epoch=None):
         if epoch is None:
@@ -195,11 +195,11 @@ class MLP(nn.Module):
 
         else:
             filename = ('%05d.pt' % epoch) if epoch != -1 else 'latest.pt'
-            state_dict = torch.load(pjoin(self.save_path, f'model/{filename}'), map_location=self.device)
+            state_dict = torch.load(pjoin(self.save_path, f'model\\{filename}'), map_location=self.device)
             self.layers.load_state_dict(state_dict)
 
             if self.is_train:
-                state_dict = torch.load(pjoin(self.save_path, f'optimizer/{filename}'), map_location=self.device)
+                state_dict = torch.load(pjoin(self.save_path, f'optimizer\\{filename}'), map_location=self.device)
                 self.optimizer.load_state_dict(state_dict)
 
 
@@ -215,7 +215,7 @@ class MLPSkeleton(nn.Module):
         neighbor_list = find_neighbor_joint(parents, threshold)
 
         if save_path is None:
-            save_path = './results/tmp/fc/'
+            save_path = '.\\results\\tmp\\fc\\'
         self.save_path = save_path
 
         self.layers = nn.ModuleList()
@@ -226,7 +226,7 @@ class MLPSkeleton(nn.Module):
         self.optimizer = None
 
         for i in range(1, len(layers)):
-            model = [SkeletonLinear(neighbor_list, layers[i-1], layers[i])]
+            model = [SkeletonLinear(neighbor_list, layers[i - 1], layers[i])]
             if i < len(layers) - 1:
                 if activation is None:
                     act = nn.LeakyReLU(negative_slope=0.2)
@@ -258,11 +258,11 @@ class MLPSkeleton(nn.Module):
             epoch = self.epoch_count
 
         if epoch % self.save_freq == 0:
-            torch.save(self.layers.state_dict(), pjoin(self.save_path, 'model/%05d.pt' % epoch))
-            torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer/%05d.pt' % epoch))
+            torch.save(self.layers.state_dict(), pjoin(self.save_path, 'model\\%05d.pt' % epoch))
+            torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer\\%05d.pt' % epoch))
 
-        torch.save(self.layers.state_dict(), pjoin(self.save_path, 'model/latest.pt'))
-        torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer/latest.pt'))
+        torch.save(self.layers.state_dict(), pjoin(self.save_path, 'model\\latest.pt'))
+        torch.save(self.optimizer.state_dict(), pjoin(self.save_path, 'optimizer\\latest.pt'))
 
     def load_model(self, epoch=None):
         if epoch is None:
@@ -274,9 +274,9 @@ class MLPSkeleton(nn.Module):
 
         else:
             filename = ('%05d.pt' % epoch) if epoch != -1 else 'latest.pt'
-            state_dict = torch.load(pjoin(self.save_path, f'model/{filename}'), map_location=self.device)
+            state_dict = torch.load(pjoin(self.save_path, f'model\\{filename}'), map_location=self.device)
             self.layers.load_state_dict(state_dict)
 
             if self.is_train:
-                state_dict = torch.load(pjoin(self.save_path, f'optimizer/{filename}'), map_location=self.device)
+                state_dict = torch.load(pjoin(self.save_path, f'optimizer\\{filename}'), map_location=self.device)
                 self.optimizer.load_state_dict(state_dict)

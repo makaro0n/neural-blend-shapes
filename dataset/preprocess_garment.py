@@ -19,7 +19,7 @@ def batch_fit(source_prefix, dest_prefix):
         s_prefix = pjoin(source_prefix, name)
         d_prefix = pjoin(dest_prefix, '%03d' % i)
         obj_name = pjoin(s_prefix, 'smpl_registered.obj')
-        verts, _= load_obj(obj_name)
+        verts, _ = load_obj(obj_name)
         res = unpose(verts.unsqueeze(0), layer)
 
         res = [p[0].detach().cpu().numpy() for p in res]
@@ -52,7 +52,7 @@ def extract_cloth(prefix, dest_file):
 
 if __name__ == '__main__':
     raise Exception("This module is no longer supported with MIT license's SMPL implementation")
-    source = 'path-to-Multi-Garment_dataset/'
-    dest = './dataset/Meshes/MultiGarment/'
+    source = 'path-to-Multi-Garment_dataset\\'
+    dest = '.\\dataset\\Meshes\\MultiGarment\\'
     batch_fit(source, dest)
     extract_cloth(dest, dest + 'all_cloths.npy')
