@@ -113,3 +113,6 @@ dataset/Meshes/
 dataset/smpl_model
 demo
 pre_trained
+train_scratch
+new_train
+new_result
