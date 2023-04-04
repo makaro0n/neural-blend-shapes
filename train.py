@@ -6,7 +6,12 @@ from dataset.topology_loader import TopologyLoader
 from architecture.generate_model import EnvelopeGenerate, BlendShapesGenerate
 from architecture import create_envelope_model, create_residual_model
 from models.kinematics import ForwardKinematics
-from dataset.mesh_dataset import SMPLDataset, MultiGarmentDataset, generate_pose, parent_smpl
+from dataset.mesh_dataset import (
+    SMPLDataset,
+    MultiGarmentDataset,
+    generate_pose,
+    parent_smpl,
+)
 from option import TrainingOptionParser
 from tqdm import tqdm
 import random
@@ -15,11 +20,19 @@ import random
 def create_model(device, args, topo_loader):
     fk = ForwardKinematics(parents=parent_smpl)
 
-    geo, att, gen = create_envelope_model(device, args, topo_loader, is_train=args.envelope, parents=parent_smpl)
+    geo, att, gen = create_envelope_model(
+        device, args, topo_loader, is_train=args.envelope, parents=parent_smpl
+    )
     envelope_model = EnvelopeGenerate(geo, att, gen, fk=fk, args=args)
 
-    geo2, _, gen2, coff = create_residual_model(device, args, topo_loader, is_train=args.residual, parents=parent_smpl,
-                                                requires_att=False)
+    geo2, _, gen2, coff = create_residual_model(
+        device,
+        args,
+        topo_loader,
+        is_train=args.residual,
+        parents=parent_smpl,
+        requires_att=False,
+    )
 
     residual_model = BlendShapesGenerate(geo2, att, gen2, coff, args=args, fk=fk)
 
@@ -52,13 +65,19 @@ def prepare_dataset(device, args):
 
     # Prepare SMPL dataset and MultiGarmentDataset
     dataset_smpl = SMPLDataset(device=device)
-    dataset_garment = MultiGarmentDataset('.\\dataset\\Meshes\\MultiGarment', topo_loader, device)
+    dataset_garment = MultiGarmentDataset(
+        ".\\dataset\\training_data\\Meshes\\MultiGarment", topo_loader, device
+    )
 
     # Prepare topology augmentation
     if args.topo_augment:
-        begin_aug_topo, len_topo = topo_loader.load_smpl_group('.\\dataset\\Meshes\\SMPL\\topology\\', is_train=True)
+        begin_aug_topo, len_topo = topo_loader.load_smpl_group(
+            ".\\dataset\\training_data\\Meshes\\SMPL\\topology\\", is_train=True
+        )
     else:
-        begin_aug_topo = topo_loader.load_from_obj('.\\dataset\\eval_constant\\meshes\\smpl_std.obj')
+        begin_aug_topo = topo_loader.load_from_obj(
+            ".\\eval_constant\\meshes\\smpl_std.obj"
+        )
         len_topo = 1
 
     return topo_loader, dataset_smpl, dataset_garment, begin_aug_topo, len_topo
@@ -71,13 +90,19 @@ def main():
     batch_size = args.batch_size
 
     device = torch.device(args.device)
-    if args.device != 'cpu':
+    if args.device != "cpu":
         torch.cuda.set_device(device)
 
     if args.envelope:
-        parser.save(pjoin(args.save_path, 'args.txt'))
+        parser.save(pjoin(args.save_path, "args.txt"))
 
-    topo_loader, dataset_smpl, dataset_garment, begin_aug_topo, len_topo = prepare_dataset(device, args)
+    (
+        topo_loader,
+        dataset_smpl,
+        dataset_garment,
+        begin_aug_topo,
+        len_topo,
+    ) = prepare_dataset(device, args)
     envelope_model, residual_model = create_model(device, args, topo_loader)
 
     if args.envelope:
@@ -86,17 +111,20 @@ def main():
     elif args.residual:
         model = residual_model
         if args.fast_train:
-            basis = np.load(pjoin(args.save_path, 'smpl_preprocess\\basis.npy'))
+            basis = np.load(pjoin(args.save_path, "smpl_preprocess\\basis.npy"))
             basis = torch.tensor(basis, device=device)
             basis = basis[None]
-            os.makedirs(pjoin(args.save_path, 'coff\\model'), exist_ok=True)
+            os.makedirs(pjoin(args.save_path, "coff\\model"), exist_ok=True)
             # cmd = f"copy {pjoin(args.save_path, 'smpl_preprocess\\full_model.pt')} {pjoin(args.save_path, 'coff\\model\\latest.pt')}"
-            cmd = "copy {} {}".format(pjoin(args.save_path, 'smpl_preprocess\\full_model.pt'), pjoin(args.save_path, 'coff\\model\\latest.pt'))
+            cmd = "copy {} {}".format(
+                pjoin(args.save_path, "smpl_preprocess\\full_model.pt"),
+                pjoin(args.save_path, "coff\\model\\latest.pt"),
+            )
             os.system(cmd)
         else:
             basis = None
     else:
-        raise Exception('Unknown training stage')
+        raise Exception("Unknown training stage")
 
     loop = tqdm(range(args.num_epoch))
     it_cnt = 0
@@ -110,22 +138,33 @@ def main():
 
             if args.envelope:
                 pose = generate_pose(batch_size, device)
-                pose_ee = generate_pose(batch_size, device, uniform=args.ee_uniform, factor=args.ee_factor, ee=dataset.end_effectors(args.ee_order))
+                pose_ee = generate_pose(
+                    batch_size,
+                    device,
+                    uniform=args.ee_uniform,
+                    factor=args.ee_factor,
+                    ee=dataset.end_effectors(args.ee_order),
+                )
                 # Examples for capture end_effector deformation
                 deformed, deformed_ee, t_pose, root_loc = dataset.forward(pose, pose_ee)
 
                 model.forward(t_pose, pose, topo_id, pose_ee=pose_ee)
-                model.backward(deformed, deformed_ee, requires_backward=True, gt_root_loc=root_loc)
+                model.backward(
+                    deformed, deformed_ee, requires_backward=True, gt_root_loc=root_loc
+                )
             elif args.residual:
                 if args.fast_train:
-                    pose = generate_pose(batch_size, device, uniform=True)  # placeholder
+                    pose = generate_pose(
+                        batch_size, device, uniform=True
+                    )  # placeholder
                     _, t_pose, _ = dataset.forward(pose)
                     model.forward(t_pose, pose, topo_id, None, basis_only=True)
                     model.backward(gt_basis=basis)
                 else:
                     pose = generate_pose(args.pose_batch_size, device, uniform=True)
-                    deformed, t_pose, skeleton = dataset.forward_multipose(pose, batch_size, residual=True,
-                                                                           requires_skeleton=True)
+                    deformed, t_pose, skeleton = dataset.forward_multipose(
+                        pose, batch_size, residual=True, requires_skeleton=True
+                    )
                     model.forward(t_pose, pose, topo_id, skeleton, basis_only=False)
                     model.backward(gt_verts=deformed)
 
@@ -137,5 +176,5 @@ def main():
         model.epoch()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

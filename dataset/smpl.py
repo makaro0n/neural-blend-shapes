@@ -6,7 +6,7 @@ import os
 
 
 class SMPL_Layer(Module):
-    def __init__(self, model_root='.\\dataset\\smpl_model', gender='neutral'):
+    def __init__(self, model_root='.\\dataset\\training_data\\smpl_model', gender='neutral'):
         super(SMPL_Layer, self).__init__()
 
         if gender == 'neutral':

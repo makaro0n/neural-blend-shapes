@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     bpy.context.scene.render.use_freestyle = use_free_style
 
-    os.system(f"rm {os.path.join(images_path, '*.png')}")
+    os.system(f"del {os.path.join(images_path, '*.png')}")
     bpy.context.scene.render.filepath = images_path
 
     batch_render(args.obj_path)
